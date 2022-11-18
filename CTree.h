@@ -24,9 +24,11 @@ public:
 
     ~CTree(); // clear siblings to right and children and this node
 
-    std::ostream &operator<<(const CTree &root);
+    CTree(const CTree &t);
+
     CTree &operator+(CTree& rt); //^ operator to do the same thing as addChild
     bool operator==(const CTree &root); // return true if two CTrees match node by node
+    friend std::ostream& operator<<(std::ostream& os, const CTree& t);
 
     // siblings and children must be unique, return true if added, false otherwise
     bool addChild(char ch);
@@ -37,8 +39,8 @@ public:
 
     std::string toString(); // all characters, separated by newlines, including at the end
 
-    CTree *lastSib();
-    CTree *lastKid();
+    void dfTraverse(std::string &str) const;
+    CTree *copy(CTree *prev = nullptr) const;
 
 
 private:
