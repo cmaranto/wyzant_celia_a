@@ -23,8 +23,6 @@ class CTree {
  public:
   friend std::ostream& operator<<(std::ostream& os, CTree& rt);
   CTree(char ch);
-  CTree(const CTree &t);
-
   ~CTree();  // clear siblings to right and children and this node
   
   CTree& operator+(CTree& rt);  //^ operator to do the same thing as addChild

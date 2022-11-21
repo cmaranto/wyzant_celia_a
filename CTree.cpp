@@ -23,12 +23,6 @@ CTree::~CTree()
     }
 }
 
-CTree::CTree(const CTree &t){
-    data = t.data;
-    kids = t.kids->copy(this);
-    sibs = t.sibs->copy(this);
-}
-
 bool CTree::addChild(char ch)
 {
     //store char in new child
