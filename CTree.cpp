@@ -48,35 +48,16 @@ bool CTree::addChild(CTree *root)
 {
     //add root as child
     //return false if root has prev or siblings or if data already exists as child
-    //can't trivially add a new node with children? can add with sibilings or add with no children?
     //otherwise add node in order
 
-    //to add child with children, break them up and insert individually?
-
-    if(root->prev || root->sibs || root->kids/*added this????*/)return false;
+    if(root->prev || root->sibs)return false;
 
     if(kids){
-        if(kids->data < root->data){
-            //go to next recursively
-            return kids->addChild(root);
-        }else if(kids->data > root->data){
-            //insert
-            //old child becomes child of new node
-            root->kids = kids;
-            //new node prev becomes old childs prev
-            root->prev = kids->prev;
-            //old childs prev becomes new node
-            kids->prev = root;
-            //current node becomes new node
-            kids = root;
-
-            return true;
-        }else{
-            //equals, already exists
-            return false;
-        }
+        //has children add as sibling
+        return kids->addSibling(root);
     }else{
-        //reached end of children, add to end        
+        //no children, add new 
+        std::cout << "no kids" << std::endl;
         root->prev = this;
         kids = root;
 
@@ -98,6 +79,7 @@ std::string CTree::toString()
 
 void CTree::dfTraverse(std::string &str) const{
     str += data;
+    str += '\n';
     if(kids){
         kids->dfTraverse(str);
     }
@@ -106,6 +88,18 @@ void CTree::dfTraverse(std::string &str) const{
         sibs->dfTraverse(str);
     }
 }
+
+void CTree::dfTraverseDebug(std::string &str) const{
+    str += debugString();
+    if(kids){
+        kids->dfTraverse(str);
+    }
+
+    if(sibs){
+        sibs->dfTraverse(str);
+    }
+}
+
 
 CTree *CTree::copy(CTree *prev) const{
     CTree *tree = new CTree(data);
@@ -120,6 +114,17 @@ CTree *CTree::copy(CTree *prev) const{
     }
 
     return tree;
+}
+
+std::string CTree::debugString() const{
+    std::string res;
+
+    res = "data: " + data + '\n';
+    res += "prev: " + (prev ? prev->data : '0') + '\n';
+    res += "sibs: " + (sibs ? sibs->data : '0') + '\n';
+    res += "kids: " + (kids ? kids->data : '0') + '\n';
+
+    return res;
 }
 
 bool CTree::addSibling(char ch)
@@ -140,16 +145,26 @@ bool CTree::addSibling(char ch)
 bool CTree::addSibling(CTree *root)
 {
     //store root in siblings
-    //return false if sibling exists or root is invalid
+    //return false if sibling exists or root is invalid or root node
     //otherwise add in order and return true
 
-    if(root->prev || root->sibs || root->kids)return false;
+    if(!prev || root->prev || root->sibs)return false;
 
-    if(sibs){
-        if(sibs->data < root->data){
+    std::cout << "ADD SIB: " << root->data << std::endl;
+
+    if(data == root->data){
+        std::cout << "exists" << std::endl;
+        //can't add if exists
+        return false;
+    }else if(sibs){
+        if(root->data > sibs->data){
             //go to next recursively
+
+            std::cout << root->data << " > " << sibs->data << std::endl;
             return sibs->addSibling(root);
-        }else if(sibs->data > root->data){
+        }else if(root->data < sibs->data){
+                std::cout << root->data << " < " << sibs->data << std::endl;
+
             //insert
             //old sib becomes sib of new node
             root->sibs = sibs;
@@ -159,9 +174,14 @@ bool CTree::addSibling(CTree *root)
             sibs->prev = root;
             //current node becomes new node
             sibs = root;
+
+            
+
             return true;
         }else{
             //equals, already exists
+        std::cout << root->data << " == " << sibs->data << std::endl;
+
             return false;
         }
     }else{
@@ -184,11 +204,11 @@ bool CTree::treeCompare(const CTree *a, const CTree *b) const
     return dftA == dftB;
 }
 
-std::ostream &operator<<(std::ostream &os, const CTree &root)
+std::ostream &operator<<(std::ostream &os, CTree &rt)
 {
     //write toString to output stream
     std::string out;
-    root.dfTraverse(out);
+    rt.dfTraverse(out);
     os << out;
     return os;
 }
